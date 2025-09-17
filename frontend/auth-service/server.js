@@ -73,7 +73,7 @@ app.post('/forgot', async (req, res) => {
     await pool.query('UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?', [token, expires, userId]);
 
     // build reset URL (use the URL you serve frontend on; Live Server often uses 5500)
-    const resetURL = `${process.env.FRONTEND_BASE || 'http://127.0.0.1:5500'}/frontend/reset.html?token=${token}`;
+    const resetURL = `${process.env.FRONTEND_BASE || 'http://127.0.0.1:5500'}/reset.html?token=${token}`;
 
     // call email service to send the link
     const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'http://localhost:5002/send-reset';
