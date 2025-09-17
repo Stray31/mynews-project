@@ -1,0 +1,126 @@
+:root {
+  --accent: #1a73e8;
+  --bg: #f5f7fb;
+  --card-bg: #fff;
+  --text-muted: #6b7280;
+  --input-border: #ddd;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, Arial, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 16px;
+}
+
+.login-card {
+  background: var(--card-bg);
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.login-card h1 {
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.login-card .subtitle {
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-card input {
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.login-card button {
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-card button:hover {
+  background: #155ab6;
+}
+
+.login-card .links {
+  margin-top: 16px;
+}
+
+.login-card .links a {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.login-card .links a:hover {
+  text-decoration: underline;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* space for the eye */
+}
+
+.password-wrapper .eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;  /* stack vertically */
+  gap: 8px;                /* space between links */
+  margin-top: 12px;
+  text-align: center;      /* optional: center the links */
+}
+
+.links a {
+  text-decoration: none;
+  color: #1a73e8;
+  font-size: 14px;
+}
+
+.links a.register-link {
+  font-weight: bold;
+}

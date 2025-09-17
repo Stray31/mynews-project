@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MyNews — Login</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>MyNews</h1>
+      <p class="subtitle">Sign in to continue</p>
+
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Password" required>
+          <span id="togglePassword" class="eye">👁️</span>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+
+      <div class="links">
+        <a href="forgot.html">Forgot password?</a>
+        <a href="register.html" class="register-link">Don't have an account? Register here</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const emailVal = document.getElementById('email').value;
+      const passwordVal = document.getElementById('password').value;
+
+      const res = await fetch('http://localhost:5001/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailVal, password: passwordVal })
+      });
+
+      if (res.ok) {
+        window.location.replace('welcome.html');
+      } else {
+        alert('Login failed');
+      }
+    });
+  </script>
+  <script>
+    // Show/hide password
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      // optional: change icon
+      togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+  </script>
+
+</body>
+
+</html>

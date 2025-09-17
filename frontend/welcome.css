@@ -1,0 +1,207 @@
+:root {
+  --accent: #1a73e8;
+  --bg: #f5f7fb;
+  --card: #fff;
+  --muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, Segoe UI, Arial;
+  background: var(--bg);
+  color: #111
+}
+
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06)
+}
+
+.logo {
+  font-weight: 700;
+  color: var(--accent)
+}
+
+.search {
+  flex: 1;
+  display: flex;
+  gap: 8px
+}
+
+.search input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px
+}
+
+.search button {
+  padding: 8px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px
+}
+
+.profile {
+  min-width: 140px;
+  text-align: right;
+  color: var(--muted)
+}
+
+.logout {
+  margin-left: 12px;
+  padding: 6px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout:hover {
+  background: #1664c7;  /* slightly darker on hover */
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px)
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 420px 900px;  /* or whatever widths you like */
+  gap: 16px;                           /* space between list & preview */
+  padding: 16px;                        /* small padding from the window edge */
+  justify-content: start;               /* ✅ keep grid left-aligned */
+  max-width: fit-content;               /* ✅ grid only as wide as columns+gap */
+  margin: 0;                            /* no auto-centering */
+  align-items: start;
+}
+
+.sidenav {
+  background: transparent;
+  padding: 8px 12px
+}
+
+.nav-item {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--muted)
+}
+
+.nav-item.active {
+  background: #e8f0fe;
+  color: var(--accent);
+  font-weight: 600
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr;  /* exactly one column */
+  gap: 12px;
+}
+
+.article { /* THIS IS THE LEFT SIDE */
+  background: var(--card);
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(10, 10, 10, 0.04);
+  width: 400px
+}
+
+.article img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px
+}
+
+.article .meta {
+  flex: 1
+}
+
+.article h3 {
+  margin: 0 0 6px;
+  font-size: 15px
+}
+
+.article p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px
+}
+
+.preview { /* eto yung main thingy */
+  background: var(--card);
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  width: 1400px;
+  
+  
+}
+
+.preview img {
+  width: 100%;
+  height: 620px;
+  object-fit: cover;
+  border-radius: 8px
+}
+
+.preview h2 {
+  margin: 12px 0 6px
+}
+
+.preview p {
+  color: var(--muted)
+}
+
+#loadMoreBtn {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #ddd
+}
+
+/* smaller screens: hide preview and stack */
+@media (max-width:1000px) {
+  .main {
+    grid-template-columns: 200px 1fr
+  }
+
+  .preview {
+    display: none
+  }
+}
+
+@media (max-width:640px) {
+  .main {
+    grid-template-columns: 1fr
+  }
+
+  .sidenav {
+    order: 2
+  }
+}

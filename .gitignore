@@ -1,0 +1,22 @@
+﻿# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# env files
+.env
+*.env
+.env.local
+.env.*.local
+
+# OS / Editor
+.vscode/
+.DS_Store
+Thumbs.db
+
+# database dumps (optional)
+db-backup/*.sql
+
+# logs
+logs/
+*.log

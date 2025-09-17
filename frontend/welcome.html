@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>News Inbox — Welcome</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">MyNews</div>
+    <form id="searchForm" class="search">
+      <input id="searchInput" placeholder="Search news (e.g. technology, bitcoin)" />
+      <button type="submit">Search</button>
+    </form>
+    <div class="profile">Hello, <strong id="userEmail">you</strong></div>
+    <button id="logoutBtn" class="logout">Logout</button>
+  </header>
+
+  <div class="app">
+    <nav class="sidenav">
+      <button class="nav-item active" data-filter="">Top headlines</button>
+      <button class="nav-item" data-filter="business">Business</button>
+      <button class="nav-item" data-filter="technology">Technology</button>
+      <button class="nav-item" data-filter="science">Science</button>
+      <button class="nav-item" data-filter="sports">Sports</button>
+      <hr>
+      <button id="loadMoreBtn">Load more</button>
+    </nav>
+
+    <main class="main">
+      <section class="list" id="articlesList">
+        <!-- article cards inserted here -->
+      </section>
+
+      <aside class="preview" id="preview">
+        <div class="preview-inner">
+          <img id="previewImage" alt="" src="">
+          <h2 id="previewTitle"></h2>
+          <p id="previewMeta"></p>
+          <p id="previewDesc"></p>
+          <a id="previewLink" href="#" target="_blank" rel="noopener">Open original article</a>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="welcome.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Forgot Password</title></head>
+<body>
+  <h1>Forgot Password</h1>
+  <form id="forgotForm">
+    <input type="email" id="email" placeholder="Your Email"><br>
+    <button type="submit">Send Reset Email</button>
+  </form>
+  <script>
+    document.getElementById('forgotForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      await fetch('http://localhost:5001/forgot', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email})
+      });
+      alert('Check your email for a reset link!');
+    });
+  </script>
+</body>
+</html>
