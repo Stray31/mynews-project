@@ -38,11 +38,12 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: true, // set to true in production with HTTPS
-    sameSite: 'none',  // allow cross-site
+    secure: process.env.NODE_ENV === 'production', // only require HTTPS in production
+    sameSite: 'none',  // cross-site
     httpOnly: true
   }
 }));
+
 
 
 console.log('FRONTEND_BASE =', process.env.FRONTEND_BASE);
