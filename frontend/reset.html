@@ -21,6 +21,7 @@
       <button type="submit">Update password</button>
     </form>
   </div>
+<script src="config.js"></script>
 
   <script>
     const token = new URLSearchParams(location.search).get('token');
@@ -37,7 +38,8 @@
         return;
       }
       try {
-        const res = await fetch(`http://localhost:5001/reset/${token}`, {
+        const res = await fetch(`${window.__API_BASES.auth}/reset/${token}`, {
+
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: p1 })

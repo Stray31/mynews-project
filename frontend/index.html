@@ -30,7 +30,7 @@
       </div>
     </div>
   </div>
-
+<script src="config.js"></script>
   <script>
 document.getElementById('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -45,11 +45,11 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
   }
 
 
-  const res = await fetch('http://localhost:5001/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: emailVal, password: passwordVal })
-  });
+ const res = await fetch(`${window.__API_BASES.auth}/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: emailVal, password: passwordVal })
+});
 
   if (res.ok) {
     const data = await res.json(); // parse JSON response

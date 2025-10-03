@@ -2,11 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const fetch = require('node-fetch');      // NEW
-const pool = require('./db');
+const fetch = require('node-fetch');
+const connectDB = require('./db');
+const User = require('./models/user');
 
 const app = express();
-app.use(cors());
+
+// Connect to MongoDB
+connectDB();
+
+app.use(cors(
+  {
+    origin: 'http://localhost:5500',
+  credentials: true
+  }
+));
 app.use(express.json());
 
 // Register
@@ -17,7 +27,7 @@ app.post('/users', async (req, res) => {
       return res.status(400).json({ error: 'Missing fields' });
     }
 
-    // ✅ 1. Verify Google reCAPTCHA
+    // ✅ Verify Google reCAPTCHA
     const secret = process.env.RECAPTCHA_SECRET;
     const verifyURL = `https://www.google.com/recaptcha/api/siteverify`;
     const verifyRes = await fetch(verifyURL, {
@@ -30,13 +40,17 @@ app.post('/users', async (req, res) => {
       return res.status(400).json({ error: 'Failed reCAPTCHA validation' });
     }
 
-    // ✅ 2. Create user if captcha passed
+    // ✅ Check if email already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+
+    // ✅ Create user
     const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      'INSERT INTO users (email, passwordHash) VALUES (?, ?)',
-      [email, hash]
-    );
-    res.json({ email });
+    const user = await User.create({ email, passwordHash: hash });
+
+    res.json({ email: user.email });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server_error' });
@@ -45,8 +59,13 @@ app.post('/users', async (req, res) => {
 
 // Get user
 app.get('/users/:email', async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [req.params.email]);
-  res.json(rows[0] || null);
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    res.json(user || null);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'server_error' });
+  }
 });
 
 const PORT = process.env.PORT || 5000;

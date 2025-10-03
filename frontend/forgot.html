@@ -7,11 +7,14 @@
     <input type="email" id="email" placeholder="Your Email"><br>
     <button type="submit">Send Reset Email</button>
   </form>
+  <script src="config.js"></script>
+
   <script>
     document.getElementById('forgotForm').addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById('email').value;
-      await fetch('http://localhost:5001/forgot', {
+      await fetch(`${window.__API_BASES.auth}/forgot`, {
+
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({email})

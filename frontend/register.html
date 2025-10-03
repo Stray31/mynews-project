@@ -105,6 +105,7 @@
     </form>
     <a href="index.html" class="login-link">Already have an account? Login here</a>
   </div>
+<script src="config.js"></script>
 
   <script>
     // Toggle password visibility
@@ -120,8 +121,8 @@
     const captchaImg = document.getElementById('captcha-img');
     const reloadBtn = document.getElementById('reload-captcha');
     function reloadCaptcha() {
-      captchaImg.src = 'http://localhost:5001/captcha?' + Date.now();
-    }
+  captchaImg.src = `${window.__API_BASES.auth}/captcha?` + Date.now();
+}
     captchaImg.addEventListener('click', reloadCaptcha);
     reloadBtn.addEventListener('click', reloadCaptcha);
 
@@ -135,7 +136,8 @@
       const captchaText = document.getElementById('captcha-input').value;
 
       // 1️⃣ verify captcha
-      const capRes = await fetch('http://localhost:5001/verify-captcha', {
+      const capRes = await fetch(`${window.__API_BASES.auth}/verify-captcha`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // keep session cookie
@@ -149,15 +151,15 @@
       }
 
       // 2️⃣ proceed with registration
-      const res = await fetch('http://localhost:5001/register', {
+      const res = await fetch(`${window.__API_BASES.auth}/register`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, firstName, lastName })
       });
 
       if (res.ok) {
-        alert('Account created successfully! You can now login.');
-        window.location.href = 'index.html';
+        alert('Registration successful! Please check your email for a verification link.');
       } else {
         const j = await res.json().catch(()=>({}));
         document.getElementById('message').textContent = j.error || 'Failed to create account';
