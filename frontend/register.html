@@ -93,12 +93,14 @@
         <span id="toggleRegPassword" class="toggle-password">👁️</span>
       </div>
 
+      
       <!-- Word-entry CAPTCHA -->
-      <div class="captcha-box">
-        <img id="captcha-img" src="mynews-project-production-1d2a.up.railway.app/captcha" alt="captcha">
-        <button type="button" id="reload-captcha" class="small-btn">↻</button>
-      </div>
-      <input type="text" id="captcha-input" placeholder="Enter text shown above" required>
+<div class="captcha-box">
+  <div id="captcha-container"></div>
+  <button type="button" id="reload-captcha" class="small-btn">↻</button>
+</div>
+<input type="text" id="captcha-input" placeholder="Enter text shown above" required>
+
 
       <div id="message"></div>
       <button type="submit">Create Account</button>
@@ -125,6 +127,24 @@
 }
     captchaImg.addEventListener('click', reloadCaptcha);
     reloadBtn.addEventListener('click', reloadCaptcha);
+    async function loadCaptcha() {
+  try {
+    const res = await fetch(`${window.__API_BASES.auth}/captcha`, {
+      credentials: 'include'
+    });
+    const data = await res.json();
+    captchaContainer.innerHTML = data.svg;
+  } catch (err) {
+    console.error('Failed to load captcha:', err);
+    captchaContainer.innerHTML = '<p style="color:red;">Captcha failed to load</p>';
+  }
+}
+
+// Initial captcha load
+loadCaptcha();
+
+// Reload button
+reloadBtn.addEventListener('click', loadCaptcha);
 
     // Registration with captcha check
     document.getElementById('registerForm').addEventListener('submit', async e => {

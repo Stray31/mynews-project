@@ -246,9 +246,12 @@ app.get('/captcha', (req, res) => {
     color: true,
     background: '#ccf'
   });
-  req.session.captcha = captcha.text;
-  res.type('svg');
-  res.status(200).send(captcha.data);
+
+  req.session.captcha = captcha.text; // store in session
+
+  res.json({
+    svg: captcha.data
+  });
 });
 
 app.post('/verify-captcha', (req, res) => {
