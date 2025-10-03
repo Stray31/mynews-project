@@ -13,7 +13,7 @@ connectDB();
 
 
 app.use(cors({
-    origin: 'https://mynews-frontend.netlify.app/',
+    origin: 'https://mynews-frontend.netlify.app',
     methods: ['GET','POST','PUT','DELETE'],
     credentials: true
 }));
