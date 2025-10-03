@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,17 +14,20 @@
       align-items: center;
       height: 100vh;
     }
+
     .card {
       background: #fff;
       padding: 24px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 340px;
     }
+
     h2 {
       text-align: center;
       margin-bottom: 16px;
     }
+
     input {
       width: 100%;
       padding: 10px;
@@ -32,6 +36,7 @@
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -42,6 +47,7 @@
       cursor: pointer;
       font-weight: bold;
     }
+
     .toggle-password {
       position: absolute;
       right: 12px;
@@ -49,19 +55,23 @@
       transform: translateY(-50%);
       cursor: pointer;
     }
+
     .input-group {
       position: relative;
     }
+
     .login-link {
       margin-top: 12px;
       text-align: center;
       display: block;
     }
+
     #message {
       color: red;
       margin-bottom: 10px;
       text-align: center;
     }
+
     .captcha-box {
       display: flex;
       align-items: center;
@@ -69,17 +79,20 @@
       margin: 10px 0;
       justify-content: center;
     }
+
     .captcha-box img {
       border: 1px solid #ccc;
       cursor: pointer;
       height: 60px;
     }
+
     .small-btn {
       width: auto;
       padding: 6px 10px;
     }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h2>Register</h2>
@@ -93,13 +106,13 @@
         <span id="toggleRegPassword" class="toggle-password">👁️</span>
       </div>
 
-      
+
       <!-- Word-entry CAPTCHA -->
-<div class="captcha-box">
-  <div id="captcha-container"></div>
-  <button type="button" id="reload-captcha" class="small-btn">↻</button>
-</div>
-<input type="text" id="captcha-input" placeholder="Enter text shown above" required>
+      <div class="captcha-box">
+        <div id="captcha-container"></div>
+        <button type="button" id="reload-captcha" class="small-btn">↻</button>
+      </div>
+      <input type="text" id="captcha-input" placeholder="Enter text shown above" required>
 
 
       <div id="message"></div>
@@ -107,74 +120,79 @@
     </form>
     <a href="index.html" class="login-link">Already have an account? Login here</a>
   </div>
-<script src="config.js"></script>
+  <script src="config.js"></script>
 
-  <script>
-    // Toggle password visibility
-    const toggleRegPassword = document.getElementById('toggleRegPassword');
-    const regPasswordInput = document.getElementById('regPassword');
-    toggleRegPassword.addEventListener('click', () => {
-      const type = regPasswordInput.type === 'password' ? 'text' : 'password';
-      regPasswordInput.type = type;
-      toggleRegPassword.textContent = type === 'password' ? '👁️' : '🙈';
-    });
+ <script src="config.js"></script>
 
-    // Captcha reload
-    const captchaImg = document.getElementById('captcha-img');
-    const reloadBtn = document.getElementById('reload-captcha');
-    function reloadCaptcha() {
-  captchaImg.src = `${window.__API_BASES.auth}/captcha?` + Date.now();
-}
-    captchaImg.addEventListener('click', reloadCaptcha);
-    reloadBtn.addEventListener('click', reloadCaptcha);
-    async function loadCaptcha() {
-  try {
-    const res = await fetch(`${window.__API_BASES.auth}/captcha`, {
-      credentials: 'include'
-    });
-    const data = await res.json();
-    captchaContainer.innerHTML = data.svg;
-  } catch (err) {
-    console.error('Failed to load captcha:', err);
-    captchaContainer.innerHTML = '<p style="color:red;">Captcha failed to load</p>';
+<script>
+  // Toggle password visibility
+  const toggleRegPassword = document.getElementById('toggleRegPassword');
+  const regPasswordInput = document.getElementById('regPassword');
+  toggleRegPassword.addEventListener('click', () => {
+    const type = regPasswordInput.type === 'password' ? 'text' : 'password';
+    regPasswordInput.type = type;
+    toggleRegPassword.textContent = type === 'password' ? '👁️' : '🙈';
+  });
+
+  // Captcha elements
+  const captchaContainer = document.getElementById('captcha-container');
+  const reloadBtn = document.getElementById('reload-captcha');
+
+  // Function to fetch and display captcha
+  async function loadCaptcha() {
+    try {
+      const res = await fetch(`${window.__API_BASES.auth}/captcha`, {
+        credentials: 'include' // keep session cookie
+      });
+      const data = await res.json();
+      captchaContainer.innerHTML = data.svg;
+    } catch (err) {
+      console.error('Failed to load captcha:', err);
+      captchaContainer.innerHTML = '<p style="color:red;">Captcha failed to load</p>';
+    }
   }
-}
 
-// Initial captcha load
-loadCaptcha();
+  // Initial captcha load
+  loadCaptcha();
 
-// Reload button
-reloadBtn.addEventListener('click', loadCaptcha);
+  // Reload button
+  reloadBtn.addEventListener('click', loadCaptcha);
 
-    // Registration with captcha check
-    document.getElementById('registerForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = document.getElementById('regEmail').value;
-      const password = document.getElementById('regPassword').value;
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
-      const captchaText = document.getElementById('captcha-input').value;
+  // Registration with captcha check
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
 
-      // 1️⃣ verify captcha
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const captchaText = document.getElementById('captcha-input').value;
+
+    // 1️⃣ Verify captcha
+    try {
       const capRes = await fetch(`${window.__API_BASES.auth}/verify-captcha`, {
-
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // keep session cookie
+        credentials: 'include', // important: keep session
         body: JSON.stringify({ input: captchaText })
-        
       });
-      
+
       const capJson = await capRes.json();
       if (!capJson.success) {
         document.getElementById('message').textContent = 'Captcha incorrect. Please try again.';
-        reloadCaptcha();
+        await loadCaptcha();
         return;
       }
+    } catch (err) {
+      console.error('Captcha verification failed:', err);
+      document.getElementById('message').textContent = 'Captcha verification failed. Try again.';
+      await loadCaptcha();
+      return;
+    }
 
-      // 2️⃣ proceed with registration
+    // 2️⃣ Proceed with registration
+    try {
       const res = await fetch(`${window.__API_BASES.auth}/register`, {
-
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, firstName, lastName })
@@ -182,12 +200,22 @@ reloadBtn.addEventListener('click', loadCaptcha);
 
       if (res.ok) {
         alert('Registration successful! Please check your email for a verification link.');
+        document.getElementById('registerForm').reset();
+        await loadCaptcha(); // reload captcha after successful registration
+        document.getElementById('message').textContent = '';
       } else {
-        const j = await res.json().catch(()=>({}));
+        const j = await res.json().catch(() => ({}));
         document.getElementById('message').textContent = j.error || 'Failed to create account';
-        reloadCaptcha();
+        await loadCaptcha();
       }
-    });
-  </script>
+    } catch (err) {
+      console.error('Registration failed:', err);
+      document.getElementById('message').textContent = 'Registration failed. Try again.';
+      await loadCaptcha();
+    }
+  });
+</script>
+
 </body>
+
 </html>
