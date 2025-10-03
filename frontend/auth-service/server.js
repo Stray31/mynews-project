@@ -38,10 +38,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // set to true in production with HTTPS
-    sameSite: 'lax',  // allow cross-site
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
+    secure: true, // set to true in production with HTTPS
+    sameSite: 'none',  // allow cross-site
   }
 }));
 
@@ -83,7 +81,7 @@ app.post('/register', async (req, res) => {
     const verifyURL = `${process.env.AUTH_BASE || 'mynews-project-production-1d2a.up.railway.app'}/verify/${verificationToken}`;
 
     // Call email service
-    const verificationServiceUrl = process.env.EMAIL_VERIFICATION_URL || 'mynews-project-production.up.railway.app/send-verification';
+    const verificationServiceUrl = process.env.EMAIL_VERIFICATION_URL || 'https://mynews-project-production.up.railway.app/send-verification';
     await axios.post(verificationServiceUrl, { email, verifyURL });
 
     return res.json({ success: true, message: 'Registered. Check your email to verify your account.' });
@@ -155,7 +153,7 @@ app.post('/forgot', async (req, res) => {
     await user.save();
 
     const resetURL = `${process.env.FRONTEND_BASE}/reset.html?token=${token}`;
-    const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'http://mynews-project-production.up.railway.app/send-reset';
+    const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'https://mynews-project-production.up.railway.app/send-reset';
     await axios.post(emailServiceUrl, { email, resetURL });
 
     return res.json({ sent: true });
