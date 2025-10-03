@@ -38,8 +38,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: false, // set to true in production with HTTPS
-    sameSite: 'lax',  // allow cross-site
+    secure: true, // set to true in production with HTTPS
+    sameSite: 'none',  // allow cross-site
     httpOnly: true
   }
 }));
