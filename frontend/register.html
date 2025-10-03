@@ -144,7 +144,7 @@
         body: JSON.stringify({ input: captchaText })
         
       });
-      console.log('Session captcha:', req.session.captcha);
+      
       const capJson = await capRes.json();
       if (!capJson.success) {
         document.getElementById('message').textContent = 'Captcha incorrect. Please try again.';
