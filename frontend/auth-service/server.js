@@ -23,7 +23,7 @@ const app = express();
 // connect to MongoDB
 connectDB();
 
-const cors = require('cors');
+
 app.use(cors({
     origin: 'https://mynews-frontend.netlify.app/',
     methods: ['GET','POST','PUT','DELETE'],
