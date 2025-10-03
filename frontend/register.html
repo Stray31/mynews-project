@@ -125,96 +125,76 @@
  <script src="config.js"></script>
 
 <script>
-  // Toggle password visibility
-  const toggleRegPassword = document.getElementById('toggleRegPassword');
-  const regPasswordInput = document.getElementById('regPassword');
-  toggleRegPassword.addEventListener('click', () => {
-    const type = regPasswordInput.type === 'password' ? 'text' : 'password';
-    regPasswordInput.type = type;
-    toggleRegPassword.textContent = type === 'password' ? '👁️' : '🙈';
+const toggleRegPassword = document.getElementById('toggleRegPassword');
+const regPasswordInput = document.getElementById('regPassword');
+const captchaContainer = document.getElementById('captcha-container');
+const reloadBtn = document.getElementById('reload-captcha');
+
+// Toggle password visibility
+toggleRegPassword.addEventListener('click', () => {
+  const type = regPasswordInput.type === 'password' ? 'text' : 'password';
+  regPasswordInput.type = type;
+  toggleRegPassword.textContent = type === 'password' ? '👁️' : '🙈';
+});
+
+// Load captcha from backend
+async function loadCaptcha() {
+  try {
+    const res = await fetch(`/api/captcha`, { credentials: 'include' });
+    const data = await res.json();
+    captchaContainer.innerHTML = data.svg;
+  } catch (err) {
+    console.error('Failed to load captcha:', err);
+    captchaContainer.innerHTML = '<p style="color:red;">Captcha failed to load</p>';
+  }
+}
+
+// Initial load
+loadCaptcha();
+
+// Reload button
+reloadBtn.addEventListener('click', loadCaptcha);
+
+// Form submit
+document.getElementById('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPassword').value;
+  const firstName = document.getElementById('firstName').value;
+  const lastName = document.getElementById('lastName').value;
+  const captchaText = document.getElementById('captcha-input').value;
+
+  // 1️⃣ verify captcha
+  const capRes = await fetch(`/api/verify-captcha`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ input: captchaText })
   });
-
-  // Captcha elements
-  const captchaContainer = document.getElementById('captcha-container');
-  const reloadBtn = document.getElementById('reload-captcha');
-
-  // Function to fetch and display captcha
-  async function loadCaptcha() {
-    try {
-      const res = await fetch(`${window.__API_BASES.auth}/captcha`, {
-        credentials: 'include' // keep session cookie
-      });
-      const data = await res.json();
-      captchaContainer.innerHTML = data.svg;
-    } catch (err) {
-      console.error('Failed to load captcha:', err);
-      captchaContainer.innerHTML = '<p style="color:red;">Captcha failed to load</p>';
-    }
+  const capJson = await capRes.json();
+  if (!capJson.success) {
+    document.getElementById('message').textContent = 'Captcha incorrect. Please try again.';
+    loadCaptcha();
+    return;
   }
 
-  // Initial captcha load
-  loadCaptcha();
-
-  // Reload button
-  reloadBtn.addEventListener('click', loadCaptcha);
-
-  // Registration with captcha check
-  document.getElementById('registerForm').addEventListener('submit', async e => {
-    e.preventDefault();
-
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const captchaText = document.getElementById('captcha-input').value;
-
-    // 1️⃣ Verify captcha
-    try {
-      const capRes = await fetch(`${window.__API_BASES.auth}/verify-captcha`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // important: keep session
-        body: JSON.stringify({ input: captchaText })
-      });
-
-      const capJson = await capRes.json();
-      if (!capJson.success) {
-        document.getElementById('message').textContent = 'Captcha incorrect. Please try again.';
-        await loadCaptcha();
-        return;
-      }
-    } catch (err) {
-      console.error('Captcha verification failed:', err);
-      document.getElementById('message').textContent = 'Captcha verification failed. Try again.';
-      await loadCaptcha();
-      return;
-    }
-
-    // 2️⃣ Proceed with registration
-    try {
-      const res = await fetch(`${window.__API_BASES.auth}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, firstName, lastName })
-      });
-
-      if (res.ok) {
-        alert('Registration successful! Please check your email for a verification link.');
-        document.getElementById('registerForm').reset();
-        await loadCaptcha(); // reload captcha after successful registration
-        document.getElementById('message').textContent = '';
-      } else {
-        const j = await res.json().catch(() => ({}));
-        document.getElementById('message').textContent = j.error || 'Failed to create account';
-        await loadCaptcha();
-      }
-    } catch (err) {
-      console.error('Registration failed:', err);
-      document.getElementById('message').textContent = 'Registration failed. Try again.';
-      await loadCaptcha();
-    }
+  // 2️⃣ register
+  const res = await fetch(`/api/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, firstName, lastName })
   });
+
+  if (res.ok) {
+    alert('Registration successful! Please check your email for a verification link.');
+  } else {
+    const j = await res.json().catch(() => ({}));
+    document.getElementById('message').textContent = j.error || 'Failed to create account';
+    loadCaptcha();
+  }
+});
 </script>
+
 
 </body>
 
