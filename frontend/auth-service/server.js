@@ -256,7 +256,8 @@ app.get('/captcha', (req, res) => {
 
 app.post('/verify-captcha', (req, res) => {
   const { input } = req.body;
-  if (input && input.toLowerCase() === req.session.captcha?.toLowerCase()) {
+  console.log('Session captcha:', req.session.captcha, 'User input:', input); // debug line
+  if (input && req.session.captcha && input.toLowerCase() === req.session.captcha.toLowerCase()) {
     return res.json({ success: true });
   }
   return res.status(400).json({ success: false });
