@@ -5,7 +5,12 @@ const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'https://mynews-frontend.netlify.app',
+    methods: ['GET','POST','PUT','DELETE'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 const NEWS_API_KEY = process.env.NEWS_API_KEY;

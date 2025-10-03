@@ -23,10 +23,13 @@ const app = express();
 // connect to MongoDB
 connectDB();
 
+const cors = require('cors');
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
+    origin: 'https://mynews-frontend.netlify.app/',
+    methods: ['GET','POST','PUT','DELETE'],
+    credentials: true
 }));
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
@@ -77,10 +80,10 @@ app.post('/register', async (req, res) => {
     await newUser.save();
 
     // Build verification link
-    const verifyURL = `${process.env.AUTH_BASE || 'http://localhost:5001'}/verify/${verificationToken}`;
+    const verifyURL = `${process.env.AUTH_BASE || 'mynews-project-production-1d2a.up.railway.app'}/verify/${verificationToken}`;
 
     // Call email service
-    const verificationServiceUrl = process.env.EMAIL_VERIFICATION_URL || 'http://localhost:5002/send-verification';
+    const verificationServiceUrl = process.env.EMAIL_VERIFICATION_URL || 'mynews-project-production.up.railway.app/send-verification';
     await axios.post(verificationServiceUrl, { email, verifyURL });
 
     return res.json({ success: true, message: 'Registered. Check your email to verify your account.' });
@@ -152,7 +155,7 @@ app.post('/forgot', async (req, res) => {
     await user.save();
 
     const resetURL = `${process.env.FRONTEND_BASE}/reset.html?token=${token}`;
-    const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'http://localhost:5002/send-reset';
+    const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'http://mynews-project-production.up.railway.app/send-reset';
     await axios.post(emailServiceUrl, { email, resetURL });
 
     return res.json({ sent: true });
@@ -181,7 +184,7 @@ app.get('/verify/:token', async (req, res) => {
     user.verificationTokenExpires = undefined;
     await user.save();
 
-    const frontendBase = process.env.FRONTEND_BASE || 'http://localhost:3000';
+    const frontendBase = process.env.FRONTEND_BASE || 'https://mynews-frontend.netlify.app/';
     return res.redirect(`${frontendBase}/verified.html`);
   } catch (err) {
     console.error('verify err', err);

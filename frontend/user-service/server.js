@@ -11,12 +11,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-app.use(cors(
-  {
-    origin: 'http://localhost:5500',
-  credentials: true
-  }
-));
+const cors = require('cors');
+app.use(cors({
+    origin: 'https://mynews-frontend.netlify.app/',
+    methods: ['GET','POST','PUT','DELETE'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Register

@@ -1,5 +1,6 @@
 window.__API_BASES = {
-  auth: "http://localhost:5001",   // replace later with Render URL
-  user: "http://localhost:5002",   // replace later with Render URL
-  email: "http://localhost:5003"   // replace later with Render URL
+  auth: "mynews-project-production-1d2a.up.railway.app",   // replace later with Render URL
+  news: "mynews-project-production-f541.up.railway.app",   // replace later with Render URL
+  email: "mynews-project-production.up.railway.app",
+  user: "mynews-project-production-7de0.up.railway.app"  // replace later with Render URL
 };
