@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, '..')));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'someStrongSecret',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production', // set to true in production with HTTPS
     sameSite: 'none',  // allow cross-site
@@ -240,6 +240,8 @@ app.post('/reset/:token', async (req, res) => {
 // ================== CAPTCHA ==================
 //
 app.get('/captcha', (req, res) => {
+  console.log('Session created:', req.session);
+
   const captcha = svgCaptcha.create({
     size: 5,
     noise: 3,
