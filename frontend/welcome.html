@@ -13,7 +13,8 @@
       <input id="searchInput" placeholder="Search news (e.g. technology, bitcoin)" />
       <button type="submit">Search</button>
     </form>
-    <div class="profile">Hello, <strong id="userEmail">you</strong></div>
+    <div class="profile">Hello, <strong id="userFirstName">you</strong></div>
+
     <button id="logoutBtn" class="logout">Logout</button>
   </header>
 
@@ -46,5 +47,10 @@
   </div>
 
   <script src="welcome.js"></script>
+  <script>
+  // Try to fetch firstName from localStorage
+  const firstName = localStorage.getItem('firstName') || 'you';
+  document.getElementById('userFirstName').textContent = firstName;
+</script>
 </body>
 </html>

@@ -4,37 +4,87 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
-const crypto = require('crypto');      // new
-      
- 
+const crypto = require('crypto');
+const session = require('express-session');
+
+
+
 
 const app = express();
-app.use(cors());
+app.use(cors(
+  {
+    origin: 'http://127.0.0.1:5500',   // your frontend origin
+    credentials: true
+  }
+));
 app.use(express.json());
+
+app.use(session({
+  secret: 'someStrongSecret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // true only if using HTTPS
+}));     // new
+
 
 console.log('FRONTEND_BASE =', process.env.FRONTEND_BASE);
 
+// Register (creates user with verified = 0, sends verification email)
 app.post('/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
 
-    // check if user already exists
+    // make sure email not used
     const [rows] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (rows.length) return res.status(400).json({ error: 'Email already in use' });
 
+    // hash password
     const hash = await bcrypt.hash(password, 10);
-    await pool.query('INSERT INTO users (email, passwordHash) VALUES (?, ?)', [email, hash]);
-    res.json({ success: true });
+
+    // create verification token (valid 24 hours)
+    const verificationToken = crypto.randomBytes(24).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // insert user with verified = 0
+    await pool.query(
+      'INSERT INTO users (firstName, lastName, email, passwordHash, verified, verificationToken, verificationTokenExpires) VALUES (?, ?, ?, ?, 0, ?, ?)',
+      [firstName || '', lastName || '', email, hash, verificationToken, verificationExpires]
+    );
+
+    // Build verification link that points to auth service endpoint /verify/:token
+    const authBase = process.env.AUTH_BASE || 'http://localhost:5001';
+    const verifyURL = `${authBase}/verify/${verificationToken}`;
+
+    // Call email service to send verification email
+    const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'http://localhost:5002/send-verification';
+    await axios.post(emailServiceUrl, { email, verifyURL });
+
+    return res.json({ success: true, message: 'Registered. Check your email to verify your account.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'server_error' });
+    console.error('register err', err);
+    return res.status(500).json({ error: 'server_error' });
   }
 });
 
 
+
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, recaptchaToken } = req.body;
+
+  const secret = process.env.RECAPTCHA_SECRET;
+  const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${recaptchaToken}`;
+
+  try {
+    const response = await axios.post(verifyURL);
+    if (!response.data.success) {
+      return res.status(400).json({ error: 'Captcha verification failed' });
+    }
+  } catch (err) {
+    console.error('Captcha verify error:', err);
+    return res.status(500).json({ error: 'server_error' });
+  }
+  
   const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
   const user = rows[0];
   if (!user) return res.status(400).send('User not found');
@@ -42,8 +92,23 @@ app.post('/login', async (req, res) => {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) return res.status(400).send('Invalid password');
 
-  const token = jwt.sign({ id: user.id }, 'yoursecret');
-  res.json({ token });
+  // include firstName in JWT payload
+  const token = jwt.sign(
+    { id: user.id, firstName: user.firstName },   // add firstName here
+    'yoursecret',
+    { expiresIn: '1h' }
+  );
+
+  // return token AND user info to frontend
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName // optional
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5001;
@@ -86,6 +151,29 @@ app.post('/forgot', async (req, res) => {
   }
 });
 
+// Verification link the user clicks from email
+app.get('/verify/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const [rows] = await pool.query(
+      'SELECT id FROM users WHERE verificationToken = ? AND verificationTokenExpires > NOW()',
+      [token]
+    );
+    if (!rows.length) return res.status(400).send('Invalid or expired verification link');
+
+    const userId = rows[0].id;
+    await pool.query('UPDATE users SET verified = 1, verificationToken = NULL, verificationTokenExpires = NULL WHERE id = ?', [userId]);
+
+    // Redirect the user to a frontend confirmation page
+    const frontendBase = process.env.FRONTEND_BASE || 'http://127.0.0.1:5500';
+    return res.redirect(`${frontendBase}/verified.html`);
+  } catch (err) {
+    console.error('verify err', err);
+    return res.status(500).send('Server error');
+  }
+});
+
+
 // Optional: endpoint to check token validity (used if you want client-side validation)
 app.get('/reset/validate/:token', async (req, res) => {
   try {
@@ -101,9 +189,9 @@ app.get('/reset/validate/:token', async (req, res) => {
 
 // POST to actually reset the password using token
 app.post('/reset/:token', async (req, res) => {
-console.log('--- /reset route hit ---');
-console.log('req.params:', req.params);
-console.log('req.body:', req.body); 
+  console.log('--- /reset route hit ---');
+  console.log('req.params:', req.params);
+  console.log('req.body:', req.body);
   try {
     const token = req.params.token;
     const { password } = req.body;
@@ -130,5 +218,30 @@ console.log('req.body:', req.body);
     return res.status(500).json({ error: 'server_error' });
   }
 });
+
+const svgCaptcha = require('svg-captcha');
+
+// Send captcha image
+app.get('/captcha', (req, res) => {
+  const captcha = svgCaptcha.create({
+    size: 5,          // number of characters
+    noise: 3,         // squiggly lines
+    color: true,
+    background: '#ccf'
+  });
+  req.session.captcha = captcha.text;    // store answer in session
+  res.type('svg');
+  res.status(200).send(captcha.data);
+});
+
+// Verify captcha input
+app.post('/verify-captcha', (req, res) => {
+  const { input } = req.body;
+  if (input && input.toLowerCase() === req.session.captcha?.toLowerCase()) {
+    return res.json({ success: true });
+  }
+  return res.status(400).json({ success: false });
+});
+
 
 app.listen(PORT, () => console.log(`Auth service on ${PORT}`));

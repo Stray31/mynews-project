@@ -42,5 +42,37 @@ app.post('/send-reset', async (req, res) => {
   }
 });
 
+app.post('/send-verification', async (req, res) => {
+  try {
+    const { email, verifyURL } = req.body;
+    if (!email || !verifyURL) return res.status(400).json({ error: 'Missing fields' });
+
+    const mailOptions = {
+      from: `"NewsMail" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Verify your MyNews account',
+      html: `
+        <p>Hello,</p>
+        <p>Thanks for signing up. Click the button below to verify your email address (link valid for 24 hours):</p>
+        <p>
+          <a href="${verifyURL}" style="display:inline-block;padding:10px 16px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">
+            Verify your email
+          </a>
+        </p>
+        <p>If you didn't sign up, you can ignore this message.</p>
+        <p>— NewsMail</p>
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Verification email sent:', info.messageId);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('send-verification error:', err);
+    return res.status(500).json({ error: 'email_failed' });
+  }
+});
+
+
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Email service on ${PORT}`));

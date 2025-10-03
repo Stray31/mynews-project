@@ -15,6 +15,7 @@
       <p class="subtitle">Sign in to continue</p>
 
       <form id="loginForm">
+        <div class="g-recaptcha" data-sitekey="6LfGadMrAAAAAHsvaVb0Zl2bxBK7crlwt404fZFS"></div> 
         <input type="email" id="email" placeholder="Email" required>
         <div class="password-wrapper">
           <input type="password" id="password" placeholder="Password" required>
@@ -31,26 +32,42 @@
   </div>
 
   <script>
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
 
-    document.getElementById('loginForm').addEventListener('submit', async e => {
-      e.preventDefault();
+  const emailVal = document.getElementById('email').value;
+  const passwordVal = document.getElementById('password').value;
+  const recaptchaToken = grecaptcha.getResponse();
 
-      const emailVal = document.getElementById('email').value;
-      const passwordVal = document.getElementById('password').value;
+    if (!recaptchaToken) {
+    alert('Please complete the captcha.');
+    return;
+  }
 
-      const res = await fetch('http://localhost:5001/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailVal, password: passwordVal })
-      });
 
-      if (res.ok) {
-        window.location.replace('welcome.html');
-      } else {
-        alert('Login failed');
-      }
-    });
-  </script>
+  const res = await fetch('http://localhost:5001/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: emailVal, password: passwordVal })
+  });
+
+  if (res.ok) {
+    const data = await res.json(); // parse JSON response
+
+    // Store token and firstName in localStorage
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('firstName', data.user.firstName); // store firstName for greeting
+
+    // Redirect to welcome/news page
+    window.location.replace('welcome.html');
+  } else {
+    const errorData = await res.json().catch(() => ({}));
+    alert(errorData.error || 'Login failed');
+    grecaptcha.reset();
+  }
+});
+</script>
+
   <script>
     // Show/hide password
     const togglePassword = document.getElementById('togglePassword');
@@ -64,6 +81,7 @@
       togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
     });
   </script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </body>
 
