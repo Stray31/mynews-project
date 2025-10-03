@@ -153,6 +153,8 @@ app.post('/forgot', async (req, res) => {
     await user.save();
 
     const resetURL = `${process.env.FRONTEND_BASE}/reset.html?token=${token}`;
+    console.log('Calling email service at:', emailServiceUrl);
+
     const emailServiceUrl = process.env.EMAIL_SERVICE_URL || 'https://mynews-project-production.up.railway.app/send-reset';
     await axios.post(emailServiceUrl, { email, resetURL });
 
